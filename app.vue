@@ -769,14 +769,14 @@ const selectedArr = ref()
 //         "source": "here"
 //     }
 // }
-console.log(data.value)
+//console.log(data.value)
 async function search(q: string) {
   loading.value = true
   if(q.length > 2){
     const users: any[] = await $fetch('https://api-adresse.data.gouv.fr/search/', { params: { q } })
 
     loading.value = false
-  console.log(users.features)
+  //console.log(users.features)
   return users.features
   }
   else {
@@ -789,7 +789,7 @@ const state = reactive({
 })
 async function onSubmit(event) {
   // Do something with event.data
-  console.log(event.data)
+  //console.log(event.data)
   data.value = await $fetch('https://apis.tollguru.com/toll/v2/origin-destination-waypoints', {
   method: 'POST',
   headers: {
@@ -799,7 +799,7 @@ async function onSubmit(event) {
   body: '{"from":{"address":"'+event.data.selectedDep.properties.label+', France"},"to":{"address":"'+event.data.selectedArr.properties.label+', France"},"serviceProvider":"here",,"vehicle":{"type":"2AxlesAuto"}}'
   })
 
-  console.log(data.value)
+  //console.log(data.value)
 }
 </script>
 <template>
