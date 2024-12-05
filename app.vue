@@ -849,7 +849,7 @@ async function onSubmit(event) {
       <div>Arrivé: {{ data.summary?.route[1]?.address }}</div>
       <div>Type de véhicule: {{ data?.summary?.vehicleDescription }}</div>
     <br>
-    <div class="grid md:grid-cols-3 gap-4">
+    <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
       <div v-for="route in data?.routes">
         <div>Nom du trajet: {{ route.summary.name }}</div>
         <ul>
