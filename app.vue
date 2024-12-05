@@ -772,7 +772,7 @@ const selectedArr = ref()
 //console.log(data.value)
 async function search(q: string) {
   loading.value = true
-  if(q.length > 2){
+  if(q.length > 3){
     const users: any[] = await $fetch('https://api-adresse.data.gouv.fr/search/', { params: { q } })
 
     loading.value = false
@@ -790,7 +790,7 @@ const state = reactive({
 async function onSubmit(event) {
   // Do something with event.data
   //console.log(event.data)
-  data.value = await $fetch('https://apis.tollguru.com/toll/v2/origin-destination-waypoints', {
+  data.value = await $fetch('/api/origin-destination-waypoints', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
