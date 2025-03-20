@@ -22,3 +22,5 @@ logs
 .env
 .env.*
 !.env.example
+tollapp-9da4a-59d3efa64608.json
+package-lock.json
