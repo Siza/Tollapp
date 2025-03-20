@@ -3,8 +3,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   ssr: true,
   devtools: { enabled: true },
-  extends: ["@nuxt/ui-pro"],
-  modules: ["@nuxt/ui", "nuxt-vuefire"],
+  modules: ["@nuxt/ui", "nuxt-vuefire", "@nuxt/ui-pro"],
   compatibilityDate: "2024-11-25",
   runtimeConfig: {
     myProxyUrl: "https://apis.tollguru.com/toll/v2/",

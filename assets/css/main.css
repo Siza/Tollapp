@@ -1,5 +1,6 @@
-@import 'tailwindcss' theme(static);
-
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+@import "@nuxt/ui-pro";
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
