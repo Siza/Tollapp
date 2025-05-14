@@ -6,20 +6,15 @@ definePageMeta({
   layout: "member",
 });
 const fileRef = ref<HTMLInputElement>();
-
+// const isDeleteAccountModalOpen = ref(false);
 const { $db, $auth } = useNuxtApp();
 
 const user = useCurrentUser();
 
 const state = reactive({
-  lastname: "",
-  firstname: "",
-  email: "",
-  username: "",
-  avatar: "",
-  bio: undefined,
+  permis: undefined,
 });
-
+const uid = ref("");
 if (user.value) {
   const docRef = doc($db, "users", user.value.uid);
   const docSnap = await getDoc(docRef);
@@ -43,11 +38,18 @@ function validate(state: any): FormError[] {
     errors.push({ path: "name", message: "Please enter your name." });
   if (!state.email)
     errors.push({ path: "email", message: "Please enter your email." });
-
+  if (
+    (state.password_current && !state.password_new) ||
+    (!state.password_current && state.password_new)
+  )
+    errors.push({
+      path: "password",
+      message: "Please enter a valid password.",
+    });
   return errors;
 }
 
-async function onFileChange(e: Event) {
+function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement;
 
   if (!input.files?.length) {
@@ -55,23 +57,6 @@ async function onFileChange(e: Event) {
   }
 
   state.avatar = URL.createObjectURL(input.files[0]);
-  console.log("state.avatar", state.avatar);
-  const file = input.files[0];
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("userId", user.value.uid);
-  try {
-    const response = await $fetch("/api/uploads", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response || !response.ok) {
-      throw new Error("Failed to upload file");
-    }
-  } catch (error) {
-    console.error("Error uploading file:", error);
-  }
 }
 
 function onFileClick() {
@@ -87,23 +72,26 @@ function onFileClick() {
 
 async function onSubmit(event: any) {
   // Do something with event.data
-  console.log(event);
+  const docRef = await updateDoc(doc($db, "users", user.value.uid), {
+    firstname: event.data.firstname,
+    lastname: event.data.lastname,
+    email: event.data.email,
+    modifiedAt: Date.now(),
+  });
+  toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 }
-// await updateDoc(doc($db, "users", user.value.uid), {
-//   firstname: state.firstname,
-//   lastname: state.lastname,
-//   username: state.username,
-//   bio: state.bio,
-//   avatar: state.avatar,
-// });
-toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 
 // const user = useState("userName");
 // console.log("user:", user);
 </script>
 
 <template>
-  <UForm id="settings" :state="state" :validate="validate" @submit="onSubmit">
+  <UForm
+    :state="state"
+    :validate="validate"
+    :validate-on="['submit']"
+    @submit="onSubmit"
+  >
     <UPageCard
       title="Profile"
       description="This information will be displayed publicly so be careful what you share."

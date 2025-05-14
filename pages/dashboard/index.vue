@@ -15,12 +15,10 @@ const state = reactive({
 });
 </script>
 <template>
-  <UDashboardPage>
-    <UDashboardPanel grow>
-      <UDashboardPanelContent>
-        <UDashboardCard> Dashboard </UDashboardCard>
-      </UDashboardPanelContent>
+  <UDashboardPanel>
+    <UDashboardPanel>
+      <UPageCard> Dashboard </UPageCard>
     </UDashboardPanel>
-  </UDashboardPage>
+  </UDashboardPanel>
 </template>
 <style scoped></style>
