@@ -1,42 +1,3 @@
-<template>
-  <UCard class="max-w-sm w-full bg-white/75 dark:bg-white/5 backdrop-blur">
-    <UAuthForm
-      :fields="fields"
-      :validate="validate"
-      title="Welcome back!"
-      align="top"
-      icon="i-heroicons-lock-closed"
-      :ui="{ base: 'text-center', footer: 'text-center' }"
-      @submit="onSubmit"
-    >
-      <template #description>
-        Don't have an account?
-        <NuxtLink to="/" class="text-primary font-medium">Sign up</NuxtLink>.
-      </template>
-
-      <template #password-hint>
-        <NuxtLink to="/" class="text-primary font-medium"
-          >Forgot password?</NuxtLink
-        >
-      </template>
-      <template #validation>
-        <UAlert
-          color="red"
-          icon="i-heroicons-information-circle-20-solid"
-          title="Error signing in"
-        />
-      </template>
-      <template #footer>
-        By signing in, you agree to our
-        <NuxtLink to="/" class="text-primary font-medium"
-          >Terms of Service</NuxtLink
-        >.
-      </template>
-    </UAuthForm>
-  </UCard>
-  <!-- <div id="firebaseui-auth-container"></div> -->
-</template>
-
 <script setup lang="ts">
 import { onMounted } from "vue";
 
@@ -52,17 +13,33 @@ definePageMeta({
   layout: "auth",
 });
 
+useSeoMeta({
+  title: "Login",
+});
+
 const fields = [
   {
     name: "email",
-    type: "text",
+    type: "text" as const,
     label: "Email",
     placeholder: "Enter your email",
+    required: true,
+    rules: [
+      {
+        rule: "email",
+        message: "Email is not valid",
+      },
+    ],
+    icon: "i-heroicons-at-symbol",
+    iconPosition: "left",
+    iconColor: "gray",
+    iconSize: "sm",
+    iconClass: "text-gray-500",
   },
   {
     name: "password",
     label: "Password",
-    type: "password",
+    type: "password" as const,
     placeholder: "Enter your password",
   },
   {
@@ -73,8 +50,8 @@ const fields = [
 ];
 
 const state = reactive({
-  email: undefined,
-  password: undefined,
+  email: "",
+  password: "",
 });
 
 const validate = (state: any) => {
@@ -130,17 +107,23 @@ const { $tui } = useNuxtApp();
 //   });
 // });
 
-async function onSubmit(data: any) {
+async function onSubmit(payload: any) {
+  const { email, password } = payload.data;
   // Do something with event.data
+  console.log("Submitted", payload.data);
   const auth = getAuth();
-  signInWithEmailAndPassword(auth, data.email, data.password)
+  signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in
       const user = userCredential.user;
       //useState("counter", () => user.uid);
       const route = useRoute();
       if (route.query.redirect) {
-        navigateTo(route.query.redirect);
+        if (typeof route.query.redirect === "string") {
+          navigateTo(route.query.redirect);
+        } else {
+          navigateTo("/dashboard");
+        }
       } else {
         navigateTo("/dashboard");
       }
@@ -148,6 +131,41 @@ async function onSubmit(data: any) {
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
+      console.log(error.message);
     });
 }
 </script>
+<template>
+  <UAuthForm
+    :fields="fields"
+    :validate="validate"
+    title="Welcome back!"
+    icon="i-lucide-lock"
+    @submit="onSubmit"
+  >
+    <template #description>
+      Don't have an account?
+      <NuxtLink to="/" class="text-primary font-medium">Sign up</NuxtLink>.
+    </template>
+
+    <template #password-hint>
+      <NuxtLink to="/" class="text-primary font-medium"
+        >Forgot password?</NuxtLink
+      >
+    </template>
+    <template #validation>
+      <UAlert
+        color="error"
+        icon="i-heroicons-information-circle-20-solid"
+        title="Error signing in"
+      />
+    </template>
+    <template #footer>
+      By signing in, you agree to our
+      <NuxtLink to="/" class="text-primary font-medium"
+        >Terms of Service</NuxtLink
+      >.
+    </template>
+  </UAuthForm>
+  <!-- <div id="firebaseui-auth-container"></div> -->
+</template>

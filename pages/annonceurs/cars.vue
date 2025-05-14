@@ -47,7 +47,7 @@ async function onSubmit(event: any) {
           <template #links>
             <UButton type="submit" label="Save changes" color="black" />
           </template>
-          <UFormGroup
+          <UFormField
             name="marque"
             label="Marque"
             required
@@ -60,8 +60,8 @@ async function onSubmit(event: any) {
               icon="i-heroicons-user"
               size="md"
             />
-          </UFormGroup>
-          <UFormGroup
+          </UFormField>
+          <UFormField
             name="modele"
             label="Modele"
             required
@@ -74,8 +74,8 @@ async function onSubmit(event: any) {
               icon="i-heroicons-user"
               size="md"
             />
-          </UFormGroup>
-          <UFormGroup
+          </UFormField>
+          <UFormField
             name="energie"
             label="Energie"
             required
@@ -83,7 +83,7 @@ async function onSubmit(event: any) {
             :ui="{ container: '' }"
           >
             <UInputMenu v-model="state.energie" :options="energies" />
-          </UFormGroup>
+          </UFormField>
         </UDashboardSection>
       </UForm>
     </UDashboardCard>

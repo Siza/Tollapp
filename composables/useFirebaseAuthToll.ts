@@ -1,4 +1,5 @@
-import { createUserWithEmailAndPassword, User } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
 export default function () {

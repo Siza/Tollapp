@@ -17,8 +17,9 @@ useHead({
       color="black"
       class="absolute top-4"
     />
-
-    <slot />
+    <UPageCard variant="subtle" class="max-w-sm w-full">
+      <slot />
+    </UPageCard>
   </div>
 </template>
 

@@ -15,6 +15,16 @@ const links = [
       icon: "i-heroicons-user-group",
       to: "/settings/professional",
     },
+    {
+      label: "Security",
+      icon: "i-lucide-shield",
+      to: "/settings/security",
+    },
+    {
+      label: "Statuts",
+      icon: "i-heroicons-user-circle",
+      to: "/settings/statuts",
+    },
     //   {
     //     label: "Notifications",
     //     icon: "i-heroicons-bell",
@@ -39,15 +49,20 @@ const links = [
 </script>
 
 <template>
-  <UDashboardPage>
-    <UDashboardPanel grow>
-      <UDashboardNavbar title="Settings" />
+  <UDashboardPanel id="settings">
+    <template #header>
+      <UDashboardNavbar title="Settings">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
 
-      <UDashboardToolbar class="py-0 px-1.5 overflow-x-auto">
-        <UHorizontalNavigation :links="links" />
+      <UDashboardToolbar>
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
       </UDashboardToolbar>
-
+    </template>
+    <template #body>
       <NuxtPage />
-    </UDashboardPanel>
-  </UDashboardPage>
+    </template>
+  </UDashboardPanel>
 </template>

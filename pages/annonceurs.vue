@@ -21,16 +21,22 @@ const links = [
 ];
 </script>
 <template>
-  <UDashboardPage>
-    <UDashboardPanel grow>
-      <UDashboardNavbar title="Convoiturage" />
+  <UDashboardPanel id="" annonceurs>
+    <template #header>
+      <UDashboardNavbar title="Convoiturage">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
 
-      <UDashboardToolbar class="py-0 px-1.5 overflow-x-auto">
-        <UHorizontalNavigation :links="links" />
+      <UDashboardToolbar>
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
       </UDashboardToolbar>
+    </template>
 
+    <template #body>
       <NuxtPage />
-    </UDashboardPanel>
-  </UDashboardPage>
+    </template>
+  </UDashboardPanel>
 </template>
 <style scoped></style>

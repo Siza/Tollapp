@@ -73,7 +73,7 @@ console.log(user);
 </script>
 
 <template>
-  <UDropdown
+  <UDropdownMenu
     mode="hover"
     :items="items"
     :ui="{ width: 'w-full', item: { disabled: 'cursor-text select-text' } }"
@@ -109,5 +109,5 @@ console.log(user);
         </p>
       </div>
     </template>
-  </UDropdown>
+  </UDropdownMenu>
 </template>

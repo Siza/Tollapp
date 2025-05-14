@@ -1,14 +1,11 @@
 <template>
-  <div><slot /></div>
+  <div>
+    <AppHeader />
+
+    <UMain>
+      <slot />
+    </UMain>
+
+    <AppFooter />
+  </div>
 </template>
-
-<script setup lang="ts">
-const { data: navigation } = await useAsyncData(
-  "navigation",
-  () => fetchContentNavigation(),
-  { default: () => [] }
-);
-provide("navigation", navigation);
-</script>
-
-<style scoped></style>

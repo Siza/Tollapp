@@ -36,29 +36,31 @@ const links = [
     ],
   },
 ];
+const open = ref(false);
 </script>
 
 <template>
-  <UDashboardLayout>
-    <UDashboardPanel
-      :width="300"
-      :resizable="{ min: 200, max: 400 }"
+  <UDashboardGroup>
+    <UDashboardSidebar
+      v-model:open="open"
       collapsible
+      resizable
+      class="bg-(--ui-bg-elevated)/25"
+      :ui="{ footer: 'lg:border-t lg:border-(--ui-border)' }"
     >
-      <UDashboardNavbar>
-        <template #left> toto </template>
-      </UDashboardNavbar>
+      <template #header="{ collapsed }"> Convoyeur App </template>
+      <template #default="{ collapsed }">
+        <UNavigationMenu
+          :collapsed="collapsed"
+          :items="links"
+          orientation="vertical"
+        />
+      </template>
+      <template #footer="{ collapsed }">
+        <UserMenu :collapsed="collapsed" />
+      </template>
+    </UDashboardSidebar>
 
-      <UDashboardSidebar>
-        <UDashboardSidebarLinks :links="links" />
-        <UDivider class="sticky bottom-0" />
-
-        <template #footer>
-          <!-- ~/components/UserDropdown.vue -->
-          <UserDropdown />
-        </template>
-      </UDashboardSidebar>
-    </UDashboardPanel>
     <slot />
-  </UDashboardLayout>
+  </UDashboardGroup>
 </template>

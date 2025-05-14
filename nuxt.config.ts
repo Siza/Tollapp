@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
-  ssr: true,
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "nuxt-vuefire", "@nuxt/ui-pro"],
   compatibilityDate: "2024-11-25",
@@ -35,10 +34,20 @@ export default defineNuxtConfig({
     "/profileForm": { ssr: false },
     "/settings": { ssr: false },
     "/settings/*": { ssr: false },
+    "/annonceurs/ride/*": { ssr: false },
     "/annonceurs/*": { ssr: false },
     "/annonceurs": { ssr: false },
     "/dashboard": { ssr: false },
     "/convoyeurs/*": { ssr: false },
+    "/convoyeurs/rides": { ssr: false },
     "/convoyeurs": { ssr: false },
+  },
+  nitro: {
+    storage: {
+      uploads: {
+        driver: "fs",
+        base: "./public/uploads",
+      },
+    },
   },
 });
