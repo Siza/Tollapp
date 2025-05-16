@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from "#ui/types";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import type { FormData, FormErrors } from "~/shared/utils/validators";
+import { formSchema } from "~/shared/utils/validators";
+import { z } from "zod";
 
 definePageMeta({
   layout: "member",
@@ -10,14 +13,22 @@ const fileRef = ref<HTMLInputElement>();
 const { $db, $auth } = useNuxtApp();
 
 const user = useCurrentUser();
-
-const state = reactive({
+type Schema = z.output<typeof formSchema>;
+const state = reactive<Partial<Schema>>({
   lastname: "",
   firstname: "",
   email: "",
   username: "",
-  avatar: "",
-  bio: undefined,
+  subject: "",
+  company: "",
+  website: "",
+  address: "",
+  city: "",
+  state: "",
+  country: "",
+  bio: "",
+  phone: undefined,
+  avatar: undefined,
 });
 
 if (user.value) {
@@ -37,16 +48,6 @@ if (user.value) {
 
 const toast = useToast();
 
-function validate(state: any): FormError[] {
-  const errors = [];
-  if (!state.lastname)
-    errors.push({ path: "name", message: "Please enter your name." });
-  if (!state.email)
-    errors.push({ path: "email", message: "Please enter your email." });
-
-  return errors;
-}
-
 async function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement;
 
@@ -59,7 +60,12 @@ async function onFileChange(e: Event) {
   const file = input.files[0];
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("userId", user.value.uid);
+  if (user.value) {
+    formData.append("userId", user.value.uid);
+  } else {
+    console.error("User is not logged in.");
+    return;
+  }
   try {
     const response = await $fetch("/api/uploads", {
       method: "POST",
@@ -85,7 +91,7 @@ function onFileClick() {
 //   toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 // }
 
-async function onSubmit(event: any) {
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   // Do something with event.data
   console.log(event);
 }
@@ -103,7 +109,7 @@ toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 </script>
 
 <template>
-  <UForm id="settings" :state="state" :validate="validate" @submit="onSubmit">
+  <UForm id="settings" :schema="formSchema" :state="state" @submit="onSubmit">
     <UPageCard
       title="Profile"
       description="This information will be displayed publicly so be careful what you share."
@@ -121,73 +127,53 @@ toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
     </UPageCard>
 
     <UPageCard variant="subtle">
-      <UFormField
-        name="lastname"
+      <SettingsUsersFormInput
+        id="lastname"
+        inputType="text"
         label="Lastname"
+        icon="i-heroicons-user"
+        name="lastname"
         required
-        class="grid grid-cols-2 gap-2 items-center"
-      >
-        <UInput
-          v-model="state.lastname"
-          autocomplete="off"
-          icon="i-heroicons-user"
-        />
-      </UFormField>
-
-      <UFormField
-        name="firstname"
-        label="Firstname"
-        required
-        class="grid grid-cols-2 gap-2 items-center"
-      >
-        <UInput
-          v-model="state.firstname"
-          autocomplete="off"
-          icon="i-heroicons-user"
-        />
-      </UFormField>
-
-      <UFormField
-        name="email"
-        label="Email"
-        description="Used to sign in, for email receipts and product updates."
-        required
-        class="grid grid-cols-2 gap-2"
-        :ui="{ container: '' }"
-      >
-        <UInput
-          v-model="state.email"
-          type="email"
-          autocomplete="off"
-          icon="i-heroicons-envelope"
-          size="md"
-          class="toto"
-          disabled
-        />
-      </UFormField>
-
-      <UFormField
-        name="username"
-        label="Username"
+        v-model="state.lastname"
         description="Your unique username for logging in and your profile URL."
+        placeholder="Enter your lastname"
+      />
+
+      <SettingsUsersFormInput
+        id="firstname"
+        inputType="text"
+        label="Firstname"
+        icon="i-heroicons-user"
+        name="firstname"
         required
-        class="grid grid-cols-2 gap-2"
-        :ui="{ container: '' }"
-      >
-        <UInput
-          v-model="state.username"
-          type="username"
-          autocomplete="off"
-          size="md"
-          input-class="ps-[77px]"
-        >
-          <template #leading>
-            <span class="text-gray-500 dark:text-gray-400 text-sm"
-              >nuxt.com/</span
-            >
-          </template>
-        </UInput>
-      </UFormField>
+        v-model="state.firstname"
+        description="Your unique username for logging in and your profile URL."
+        placeholder="Enter your firstname"
+      />
+
+      <SettingsUsersFormInput
+        id="email"
+        inputType="email"
+        label="Email"
+        icon="i-heroicons-envelope"
+        name="email"
+        required
+        v-model="state.email"
+        description="Used to sign in, for email receipts and product updates."
+        placeholder="Enter your email"
+      />
+
+      <SettingsUsersFormInput
+        id="username"
+        inputType="Username"
+        label="username"
+        icon="i-heroicons-envelope"
+        name="username"
+        required
+        v-model="state.username"
+        description="Used to sign in, for email receipts and product updates."
+        placeholder="Enter your username"
+      />
       <UFormField
         name="avatar"
         label="Avatar"
@@ -207,15 +193,15 @@ toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
         </div>
       </UFormField>
       <USeparator />
-      <UFormField
-        name="bio"
+      <SettingsUsersFormTextarea
+        id="bio"
         label="Bio"
+        name="bio"
+        :required="false"
+        v-model="state.bio"
         description="Brief description for your profile. URLs are hyperlinked."
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-        :ui="{ container: 'w-full' }"
-      >
-        <UTextarea v-model="state.bio" :rows="5" autoresize class="w-full" />
-      </UFormField>
+        placeholder="Enter your bio"
+      />
     </UPageCard>
   </UForm>
 </template>

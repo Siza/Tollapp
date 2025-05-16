@@ -27,6 +27,7 @@
     "nuxt-vuefire": "^1.0.5",
     "tailwindcss": "^4.0.14",
     "v-calendar": "^3.1.2",
-    "vuefire": "^3.2.1"
+    "vuefire": "^3.2.1",
+    "zod": "^3.24.4"
   }
 }
