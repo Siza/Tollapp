@@ -1,5 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  uiPro: {
+    license: process.env.NUXT_UI_PRO_LICENSE,
+  },
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "nuxt-vuefire", "@nuxt/ui-pro"],
