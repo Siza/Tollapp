@@ -10,6 +10,15 @@ const links = [
     },
   },
   {
+    label: "Inbox",
+    icon: "i-lucide-inbox",
+    to: "/inbox",
+    badge: "4",
+    onSelect: () => {
+      open.value = false;
+    },
+  },
+  {
     label: "Annonceurs",
     icon: "i-heroicons-inbox",
     to: "/annonceurs",

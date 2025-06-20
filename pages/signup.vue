@@ -21,7 +21,11 @@ const state = reactive({
 async function handleRegistration(data: any) {
   console.log(state, data);
 
-  await registerUser(data.email, data.password, data.name);
+  const response = await registerUser(data.email, data.password, data.name);
+  if (response) {
+    // Redirect to settings page
+    await navigateTo("/settings");
+  }
 }
 
 const fields = [

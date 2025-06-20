@@ -19,15 +19,7 @@ const state = reactive<Partial<Schema>>({
   firstname: "",
   email: "",
   username: "",
-  subject: "",
-  company: "",
-  website: "",
-  address: "",
-  city: "",
-  state: "",
-  country: "",
   bio: "",
-  phone: undefined,
   avatar: undefined,
 });
 
@@ -39,7 +31,15 @@ if (user.value) {
     console.log("Document data:", docSnap.data());
     state.firstname = docSnap.data().firstname;
     state.lastname = docSnap.data().lastname;
+    state.username = docSnap.data().username;
     state.email = docSnap.data().email;
+    state.bio = docSnap.data().bio;
+    if (docSnap.data().avatar) {
+      state.avatar = docSnap.data().avatar;
+    } else {
+      state.avatar = "https://avatar.iran.liara.run/public";
+    }
+    //state.avatar = docSnap.data().avatar;
   } else {
     // docSnap.data() will be undefined in this case
     console.log("No such document!");
@@ -47,6 +47,7 @@ if (user.value) {
 }
 
 const toast = useToast();
+const fileForm = ref();
 
 async function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement;
@@ -56,8 +57,9 @@ async function onFileChange(e: Event) {
   }
 
   state.avatar = URL.createObjectURL(input.files[0]);
-  console.log("state.avatar", state.avatar);
+
   const file = input.files[0];
+  console.log("Selected file:", file);
   const formData = new FormData();
   formData.append("file", file);
   if (user.value) {
@@ -66,43 +68,47 @@ async function onFileChange(e: Event) {
     console.error("User is not logged in.");
     return;
   }
-  try {
-    const response = await $fetch("/api/uploads", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response || !response.ok) {
-      throw new Error("Failed to upload file");
-    }
-  } catch (error) {
-    console.error("Error uploading file:", error);
-  }
+  fileForm.value = formData;
+  console.log("File form data:", fileForm.value.get("file"));
 }
 
 function onFileClick() {
   fileRef.value?.click();
 }
 
-// async function onSubmit(event: FormSubmitEvent<any>) {
-//   // Do something with data
-//   console.log(event.data);
-
-//   toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
-// }
-
+const filenameForm = ref("");
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // Do something with event.data
-  console.log(event);
+  console.log(fileForm.value);
+  if (fileForm.value) {
+    try {
+      const response = await $fetch("/api/uploads", {
+        method: "POST",
+        body: fileForm.value,
+      });
+
+      if (!response || !response.files[0]?.filename) {
+        throw new Error("Failed to upload file");
+      }
+      filenameForm.value = response.files[0]?.filename;
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  }
+  await updateDoc(doc($db, "users", user.value.uid), {
+    firstname: state.firstname,
+    lastname: state.lastname,
+    username: state.username,
+    bio: state.bio,
+    avatar: filenameForm.value,
+  })
+    .then(() => {
+      console.log("Document successfully updated!");
+    })
+    .catch((error) => {
+      console.error("Error updating document: ", error);
+    });
+  toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 }
-// await updateDoc(doc($db, "users", user.value.uid), {
-//   firstname: state.firstname,
-//   lastname: state.lastname,
-//   username: state.username,
-//   bio: state.bio,
-//   avatar: state.avatar,
-// });
-toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 
 // const user = useState("userName");
 // console.log("user:", user);

@@ -23,7 +23,7 @@ const links = [
     {
       label: "Statuts",
       icon: "i-heroicons-user-circle",
-      to: "/settings/statuts",
+      to: "/settings/status",
     },
     //   {
     //     label: "Notifications",

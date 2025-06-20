@@ -10,6 +10,8 @@ export default defineNuxtConfig({
   vuefire: {
     auth: {
       enabled: true,
+      debug: process.env.NODE_ENV !== "production",
+      isTokenAutoRefreshEnabled: true,
     },
     config: {
       apiKey: process.env.FIREBASE_API_KEY,
@@ -41,6 +43,8 @@ export default defineNuxtConfig({
     "/convoyeurs/*": { ssr: false },
     "/convoyeurs/rides": { ssr: false },
     "/convoyeurs": { ssr: false },
+    "/inbox": { ssr: false },
+    "/inbox/*": { ssr: false },
   },
   nitro: {
     storage: {

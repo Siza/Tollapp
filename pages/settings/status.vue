@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from "#ui/types";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 definePageMeta({
   layout: "member",
 });
-const fileRef = ref<HTMLInputElement>();
-// const isDeleteAccountModalOpen = ref(false);
+
 const { $db, $auth } = useNuxtApp();
 
 const user = useCurrentUser();
 
-const state = reactive({
-  permis: undefined,
+const state = ref({
+  permis: { filename: undefined, createddAt: undefined, status: "0" },
+  rcpro: { filename: undefined, createddAt: undefined, status: "0" },
+  assurance: { filename: undefined, createddAt: undefined, status: "0" },
+  kbis: { filename: undefined, createddAt: undefined, status: "0" },
 });
 const uid = ref("");
 if (user.value) {
-  const docRef = doc($db, "users", user.value.uid);
+  const docRef = doc($db, "papiers", user.value.uid);
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
     console.log("Document data:", docSnap.data());
-    state.firstname = docSnap.data().firstname;
-    state.lastname = docSnap.data().lastname;
-    state.email = docSnap.data().email;
+    state.value = docSnap.data().state;
   } else {
     // docSnap.data() will be undefined in this case
     console.log("No such document!");
@@ -31,70 +31,58 @@ if (user.value) {
 }
 
 const toast = useToast();
+const formData = new FormData();
 
-function validate(state: any): FormError[] {
-  const errors = [];
-  if (!state.lastname)
-    errors.push({ path: "name", message: "Please enter your name." });
-  if (!state.email)
-    errors.push({ path: "email", message: "Please enter your email." });
-  if (
-    (state.password_current && !state.password_new) ||
-    (!state.password_current && state.password_new)
-  )
-    errors.push({
-      path: "password",
-      message: "Please enter a valid password.",
-    });
-  return errors;
-}
-
-function onFileChange(e: Event) {
+async function onFileChange(e: Event, name: string) {
   const input = e.target as HTMLInputElement;
 
   if (!input.files?.length) {
     return;
   }
+  const file = input.files[0];
 
-  state.avatar = URL.createObjectURL(input.files[0]);
+  if (formData.has(name)) {
+    formData.set(name, file);
+  } else {
+    formData.append(name, file);
+  }
+
+  state[name].filename = file.name;
+  state[name].createddAt = new Date();
+  state[name].status = "1";
+  // Update the state to reflect the file change
+  // This will trigger reactivity in the template
+  console.log(`File changed for ${name}:`, state[name]);
 }
-
-function onFileClick() {
-  fileRef.value?.click();
-}
-
-// async function onSubmit(event: FormSubmitEvent<any>) {
-//   // Do something with data
-//   console.log(event.data);
-
-//   toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
-// }
 
 async function onSubmit(event: any) {
+  if (user.value) {
+    if (formData.has("userId")) {
+      formData.set("userId", user.value.uid);
+    } else {
+      formData.append("userId", user.value.uid);
+    }
+  } else {
+    console.error("User is not logged in.");
+    return;
+  }
+  const response = await $fetch("/api/uploads", {
+    method: "POST",
+    body: formData,
+  });
   // Do something with event.data
-  const docRef = await updateDoc(doc($db, "users", user.value.uid), {
-    firstname: event.data.firstname,
-    lastname: event.data.lastname,
-    email: event.data.email,
-    modifiedAt: Date.now(),
+  const docRef = await updateDoc(doc($db, "papiers", user.value.uid), {
+    state,
   });
   toast.add({ title: "Profile updated", icon: "i-heroicons-check-circle" });
 }
-
-// const user = useState("userName");
-// console.log("user:", user);
 </script>
 
 <template>
-  <UForm
-    :state="state"
-    :validate="validate"
-    :validate-on="['submit']"
-    @submit="onSubmit"
-  >
+  <UForm id="settings" :state="state" @submit="onSubmit">
     <UPageCard
-      title="Profile"
-      description="This information will be displayed publicly so be careful what you share."
+      title="Status"
+      description="Verification des papiers de convoyeur. Ils ne seront pas conservés. Il ne serviront qu'à vérifier votre statut de convoyeur."
       variant="naked"
       orientation="horizontal"
       class="mb-4"
@@ -109,101 +97,88 @@ async function onSubmit(event: any) {
     </UPageCard>
 
     <UPageCard variant="subtle">
-      <UFormField
-        name="lastname"
-        label="Lastname"
-        required
-        class="grid grid-cols-2 gap-2 items-center"
+      <SettingsUsersFormUpload
+        :state="{
+          label: 'Permis de conduire',
+          badge: state.permis.status,
+          name: 'permis',
+          labelButton: 'Choose',
+          description: 'JPG, GIF or PNG. 1MB Max.',
+          filename: state.permis.filename,
+        }"
+        @onFileChange="onFileChange($event, 'permis')"
+      />
+      <!-- <UFormField
+        name="permis"
+        :ui="{
+          root: 'flex max-sm:flex-col justify-between sm:items-center gap-4',
+          wrapper: '',
+          container: 'mt-1 relative flex',
+        }"
       >
-        <UInput
-          v-model="state.lastname"
-          autocomplete="off"
-          icon="i-heroicons-user"
-        />
-      </UFormField>
-
-      <UFormField
-        name="firstname"
-        label="Firstname"
-        required
-        class="grid grid-cols-2 gap-2 items-center"
-      >
-        <UInput
-          v-model="state.firstname"
-          autocomplete="off"
-          icon="i-heroicons-user"
-        />
-      </UFormField>
-
-      <UFormField
-        name="email"
-        label="Email"
-        description="Used to sign in, for email receipts and product updates."
-        required
-        class="grid grid-cols-2 gap-2"
-        :ui="{ container: '' }"
-      >
-        <UInput
-          v-model="state.email"
-          type="email"
-          autocomplete="off"
-          icon="i-heroicons-envelope"
-          size="md"
-          class="toto"
-          disabled
-        />
-      </UFormField>
-
-      <UFormField
-        name="username"
-        label="Username"
-        description="Your unique username for logging in and your profile URL."
-        required
-        class="grid grid-cols-2 gap-2"
-        :ui="{ container: '' }"
-      >
-        <UInput
-          v-model="state.username"
-          type="username"
-          autocomplete="off"
-          size="md"
-          input-class="ps-[77px]"
-        >
-          <template #leading>
-            <span class="text-gray-500 dark:text-gray-400 text-sm"
-              >nuxt.com/</span
-            >
-          </template>
-        </UInput>
-      </UFormField>
-      <UFormField
-        name="avatar"
-        label="Avatar"
-        description="JPG, GIF or PNG. 1MB Max."
-        class="flex max-sm:flex-col justify-between sm:items-center gap-4"
-      >
+        <template #label>
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-semibold">Permis de conduire</span>
+            <UBadge class="font-bold rounded-full">Badge</UBadge>
+          </div>
+        </template>
+        <template #description>
+          <span class="text-sm text-gray-600">JPG, GIF or PNG. 1MB Max.</span>
+        </template>
         <div class="flex flex-wrap items-center gap-3">
-          <UAvatar :src="state.avatar" :alt="state.name" size="lg" />
-          <UButton label="Choose" color="neutral" @click="onFileClick" />
+          <span v-if="state.permis" class="text-sm text-gray-600">
+            {{ state.permis }}
+          </span>
+          <UButton
+            label="Choose"
+            color="neutral"
+            @click="onFileClick('permis')"
+          />
           <input
-            ref="fileRef"
+            ref="fileRefPermis"
             type="file"
             class="hidden"
             accept=".jpg, .jpeg, .png, .gif"
-            @change="onFileChange"
+            @change="onFileChange($event, 'permis')"
           />
         </div>
-      </UFormField>
+      </UFormField> -->
       <USeparator />
-      <UFormField
-        name="bio"
-        label="Bio"
-        description="Brief description for your profile. URLs are hyperlinked."
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-        :ui="{ container: 'w-full' }"
-      >
-        <UTextarea v-model="state.bio" :rows="5" autoresize class="w-full" />
-      </UFormField>
+      <SettingsUsersFormUpload
+        :state="{
+          label: 'RC pro',
+          badge: state.permis.status,
+          name: 'rcpro',
+          labelButton: 'Choose',
+          description: 'JPG, GIF or PNG. 1MB Max.',
+          filename: state.rcpro.filename,
+        }"
+        @onFileChange="onFileChange($event, 'rcpro')"
+      />
+      <USeparator />
+      <SettingsUsersFormUpload
+        :state="{
+          label: 'Assurance convoyage',
+          badge: state.permis.status,
+          name: 'assurance',
+          labelButton: 'Choose',
+          description: 'JPG, GIF or PNG. 1MB Max.',
+          filename: state.assurance.filename,
+        }"
+        @onFileChange="onFileChange($event, 'assurance')"
+      />
+      <USeparator />
+      <SettingsUsersFormUpload
+        :state="{
+          label: 'Kbis',
+          badge: state.permis.status,
+          name: 'kbis',
+          labelButton: 'Choose',
+          description: 'JPG, GIF or PNG. 1MB Max.',
+          filename: state.kbis.filename,
+        }"
+        @onFileChange="onFileChange($event, 'kbis')"
+      />
     </UPageCard>
   </UForm>
 </template>

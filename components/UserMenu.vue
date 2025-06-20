@@ -19,7 +19,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
   [
     {
       type: "label",
-      label: user?.value.email,
+      label: "user?.value.email",
     },
   ],
   [

@@ -90,7 +90,7 @@ const columns = [
     },
   },
 ];
-const toto = ref([]);
+const convoyeurs = ref([]);
 const columnVisibility = ref({
   idBase: false,
 });
@@ -108,7 +108,7 @@ function getRowItems(row) {
         await setDoc(
           doc($db, "rides", row.original.idBase),
           {
-            convoyeurIDs: [...toto.value, useCurrentUser().value.uid],
+            convoyeurIDs: [...convoyeurs.value, useCurrentUser().value.uid],
           },
           { merge: true }
         );
@@ -164,8 +164,7 @@ querySnapshot.forEach((doc) => {
     cout: "",
     convoyeurIDs: [],
   };
-  console.log(doc.id, " => ", doc.data()?.arrival?.city);
-  console.log(state);
+
   state.id = index++;
   state.idBase = doc.id;
   state.annonce = doc.id;
@@ -176,10 +175,10 @@ querySnapshot.forEach((doc) => {
   console.log(mydate.toDate());
   state.date = mydate.toDate();
   state.cout = doc.data()?.tarif;
-  toto.value = doc.data()?.convoyeurIDs || [];
+  convoyeurs.value = doc.data()?.convoyeurIDs || [];
   rides.value.push(state);
 });
-console.log("toto: ", toto.value);
+
 const selected = ref([]);
 const toast = useToast();
 
@@ -258,7 +257,6 @@ function suc() {
         </div>
       </template>
     </UTable>
-    <UButton @some-event="suc">Soumettre</UButton>
   </div>
 </template>
 <style scoped></style>
