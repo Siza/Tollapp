@@ -25,10 +25,11 @@ useSeoMeta({
 });
 </script>
 <template>
-  <div>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <UNotifications />
-  </div>
+  <UApp>
+    <div>
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </div>
+  </UApp>
 </template>

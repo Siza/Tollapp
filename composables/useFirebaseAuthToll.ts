@@ -1,4 +1,5 @@
-import { createUserWithEmailAndPassword, User } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
 export default function () {
@@ -21,12 +22,38 @@ export default function () {
         //console.log(userCreds);
         //userCreds.user.name = displayName;
         user.value = userCreds.user;
-        const docRef = await setDoc(doc($db, "users", userCreds.user.uid), {
+        // Set the user information for the fist time
+        // in the database
+        // This is the first time the user is registered
+        await setDoc(doc($db, "users", userCreds.user.uid), {
           lastname: displayName,
           email: userCreds.user.email,
           createdAt: Date.now(),
         });
-        navigateTo("/settings");
+        await setDoc(doc($db, "papiers", userCreds.user.uid), {
+          createdAt: Date.now(),
+          permis: {
+            status: 0,
+            filename: "",
+            CreatedAt: Date.now(),
+          },
+          rcpro: {
+            status: 0,
+            filename: "",
+            createdAt: Date.now(),
+          },
+          assurance: {
+            status: 0,
+            filename: "",
+            createdAt: Date.now(),
+          },
+          kbis: {
+            status: 0,
+            filename: "",
+            createdAt: Date.now(),
+          },
+        });
+
         return true;
       }
     } catch (error: unknown) {

@@ -2,7 +2,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 import * as firebaseui from "firebaseui";
-import "firebaseui/dist/firebaseui.css";
+//import "firebaseui/dist/firebaseui.css";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const tui = new firebaseui.auth.AuthUI(getAuth(nuxtApp.$firebaseApp));

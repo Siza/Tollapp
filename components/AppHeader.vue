@@ -27,16 +27,22 @@ console.log("currentUser: ", currentUser.value);
     </template>
 
     <template #right>
-      <UButton v-if="!currentUser" label="Connexion" color="gray" to="/login" />
-      <UButton v-else label="Dashboard" color="gray" to="/dashboard" />
+      <UButton
+        v-if="!currentUser"
+        label="Connexion"
+        color="neutral"
+        variant="ghost"
+        to="/login"
+        class="hidden lg:inline-flex"
+      />
+      <UButton v-else label="Dashboard" color="neutral" to="/dashboard" />
       <UButton
         v-if="!currentUser"
         label="Inscription"
-        icon="i-heroicons-arrow-right-20-solid"
-        trailing
-        color="black"
+        trailing-icon="i-lucide-arrow-right"
+        class="hidden lg:inline-flex"
+        color="neutral"
         to="/signup"
-        class="hidden lg:flex"
       />
     </template>
 

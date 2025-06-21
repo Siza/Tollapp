@@ -1,9 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  ssr: true,
+  uiPro: {
+    license: process.env.NUXT_UI_PRO_LICENSE,
+  },
+  css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
-  extends: ["@nuxt/ui-pro"],
-  modules: ["@nuxt/ui", "nuxt-vuefire"],
+  modules: ["@nuxt/ui", "nuxt-vuefire", "@nuxt/ui-pro"],
   compatibilityDate: "2024-11-25",
   runtimeConfig: {
     myProxyUrl: "https://apis.tollguru.com/toll/v2/",
@@ -11,6 +13,8 @@ export default defineNuxtConfig({
   vuefire: {
     auth: {
       enabled: true,
+      debug: process.env.NODE_ENV !== "production",
+      isTokenAutoRefreshEnabled: true,
     },
     config: {
       apiKey: process.env.FIREBASE_API_KEY,
@@ -35,10 +39,22 @@ export default defineNuxtConfig({
     "/profileForm": { ssr: false },
     "/settings": { ssr: false },
     "/settings/*": { ssr: false },
+    "/annonceurs/ride/*": { ssr: false },
     "/annonceurs/*": { ssr: false },
     "/annonceurs": { ssr: false },
     "/dashboard": { ssr: false },
     "/convoyeurs/*": { ssr: false },
+    "/convoyeurs/rides": { ssr: false },
     "/convoyeurs": { ssr: false },
+    "/inbox": { ssr: false },
+    "/inbox/*": { ssr: false },
+  },
+  nitro: {
+    storage: {
+      uploads: {
+        driver: "fs",
+        base: "./public/uploads",
+      },
+    },
   },
 });

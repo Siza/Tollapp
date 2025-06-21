@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from "#ui/types";
-import { doc, getDoc, setDoc } from "firebase/firestore";
 definePageMeta({
   middleware: ["authenticated-toll"],
 });
@@ -21,17 +19,21 @@ const links = [
 ];
 </script>
 <template>
-  <UDashboardPage>
-    <UDashboardPanel grow>
-      <UDashboardNavbar title="Convoiturage" />
+  <UDashboardPanel id="convoyeurs">
+    <template #header>
+      <UDashboardNavbar title="Convoiturage">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
 
-      <UDashboardToolbar class="py-0 px-1.5 overflow-x-auto">
-        <UHorizontalNavigation :links="links" />
+      <UDashboardToolbar>
+        <UNavigationMenu :items="links" highlight class="-mx-1 flex-1" />
       </UDashboardToolbar>
-
+    </template>
+    <template #body>
       <NuxtPage />
-    </UDashboardPanel>
-    <UModals />
-  </UDashboardPage>
+    </template>
+  </UDashboardPanel>
 </template>
 <style scoped></style>
